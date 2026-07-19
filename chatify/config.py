@@ -1,0 +1,59 @@
+import os, json
+from dataclasses import dataclass
+from pathlib import Path
+
+
+class Config:
+    _folder: Path
+
+    @property
+    def _save_location(self) -> Path:
+        return self._folder / "config.json"
+
+    def _save(self):
+        with open(self._save_location, "w") as file:
+            file.write(json.dumps(self.serialize(), indent=2 if self.debug else 0))
+
+    def _load(self):
+        if not self._save_location.exists():
+            self._save()
+        else:
+            with open(self._save_location, "r") as file:
+                data = json.loads(file.read())
+                self.__dict__.update(data)
+
+    
+    def serialize(self):
+        ALLOWED_TYPES = (str, int, list, dict, bool)
+        new = {}
+        for key, value in self.__dict__.items():
+            if key.startswith("_"):
+                continue
+            if isinstance(value, ALLOWED_TYPES):
+                new[key] = value
+        return new
+    
+    def __init__(self, base: Path) -> None:
+        self._folder = base
+        self.host: str = os.getenv("HOST", "0.0.0.0")
+        self.port: int = int(os.getenv("PORT", "8000"))
+        self.debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self._save()
+
+
+config: Config
+
+def load(base: Path, *args, **kwargs):
+    global config
+    config = Config(base)
+    config._load()
+
+
+def get() -> Config:
+    global config
+    return config
