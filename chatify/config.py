@@ -38,6 +38,11 @@ class Config:
         self.host: str = os.getenv("HOST", "0.0.0.0")
         self.port: int = int(os.getenv("PORT", "8000"))
         self.debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+        self.base_404_message = '''
+<!DOCTYPE html>
+<h1>Error loading normal 404 page; if you see this as a non-developer, something has gone seriously wrong!</h1><nl>
+<h2>If you are the site developer, please put a file named 404.html into your templates folder!</h2>
+        '''
 
     def __enter__(self):
         return self
