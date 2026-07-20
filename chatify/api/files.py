@@ -1,15 +1,19 @@
 from functools import cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from fastapi.responses import HTMLResponse
-from . import config
+
+
+if TYPE_CHECKING:
+    from chatify.app import ChatApp
 class FileManager:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, parent: "ChatApp") -> None:
+        self.parent = parent
 
     @property
     def template_folder(self) -> Path:
-        name = config.get()._folder / "templates"
+        name = self.parent.config._folder / "templates"
         name.mkdir(exist_ok=True, parents=True)
         return name
     
@@ -43,7 +47,7 @@ class FileManager:
         _404template = self.load_template("404")
         if not _404template:
             return HTMLResponse(
-                content=config.get().base_404_message,
+                content=self.parent.config.base_404_message,
                 status_code=404
             )
         

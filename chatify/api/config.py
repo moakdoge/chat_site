@@ -1,7 +1,10 @@
 import os, json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from chatify.app import ChatApp
 
 class Config:
     _folder: Path
@@ -33,8 +36,9 @@ class Config:
                 new[key] = value
         return new
     
-    def __init__(self, base: Path) -> None:
+    def __init__(self, base: Path, parent: "ChatApp") -> None:
         self._folder = base
+        self._parent = parent
         self.host: str = os.getenv("HOST", "0.0.0.0")
         self.port: int = int(os.getenv("PORT", "8000"))
         self.debug: bool = os.getenv("DEBUG", "false").lower() == "true"
@@ -49,16 +53,3 @@ class Config:
 
     def __exit__(self, exc_type, exc, tb):
         self._save()
-
-
-config: Config
-
-def load(base: Path, *args, **kwargs):
-    global config
-    config = Config(base)
-    config._load()
-
-
-def get() -> Config:
-    global config
-    return config
