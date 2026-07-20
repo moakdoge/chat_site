@@ -1,60 +1,142 @@
 import requests
+import curses
 
 BASE_URL = "http://127.0.0.1:8000"
 
 
-def main():
-    # Login
-    login_response = requests.post(
-        f"{BASE_URL}/api/login/moakdoge",
-        json={
-            "username": "moakdoge",
-            "password": "1234"
-        }
-    )
+class ChatTUI:
+    def __init__(self, stdscr):
+        self.stdscr = stdscr
+        self.token = None
+        self.user_id = None
+        self.channel_id = None
+        self.messages = []
 
-    print("Login status:", login_response.status_code)
-    print(login_response.text)
+        curses.curs_set(1)
+        self.stdscr.clear()
 
-    login_data = login_response.json()
+    def login(self):
+        username = "moakdoge"
+        password = "1234"
 
-    if not login_data.get("success"):
-        print("Login failed")
-        return
+        r = requests.post(
+            f"{BASE_URL}/api/login/{username}",
+            json={
+                "username": username,
+                "password": password
+            }
+        )
 
-    token = login_data["session_token"]
-    user_id = login_data["id"]
+        data = r.json()
 
-    print("Logged in as:", user_id)
+        if not data.get("success"):
+            raise Exception("Login failed")
 
-    channel_info = requests.post(
-        f"{BASE_URL}/channels/new",
-        headers={
-            "Authorization": f"Bearer {token}"
-        },
-        json={
-            "name": "test_channel",
-            "description": "unknown"
-        }
-    )
+        self.token = data["session_token"]
+        self.user_id = data["id"]
 
-    # Send message
-    channel = channel_info.json()["id"]  # change this to a real channel
+    def create_channel(self):
+        r = requests.post(
+            f"{BASE_URL}/channels/new",
+            headers={
+                "Authorization": f"Bearer {self.token}"
+            },
+            json={
+                "name": "tui_channel",
+                "description": "Created from TUI"
+            }
+        )
 
-    send_response = requests.post(
-        f"{BASE_URL}/channels/{channel}/send",
-        headers={
-            "Authorization": f"Bearer {token}"
-        },
-        json={
-            "content": "Hello from the test CLI!",
-            "author": user_id
-        }
-    )
+        data = r.json()
+        self.channel_id = data["id"]
 
-    print("Send status:", send_response.status_code)
-    print(send_response.text)
+    def send_message(self, content):
+        r = requests.post(
+            f"{BASE_URL}/channels/{self.channel_id}/send",
+            headers={
+                "Authorization": f"Bearer {self.token}"
+            },
+            json={
+                "content": content,
+                "author": self.user_id
+            }
+        )
+
+        return r.ok
+
+    def draw(self):
+        self.stdscr.clear()
+
+        height, width = self.stdscr.getmaxyx()
+
+        self.stdscr.addstr(
+            0,
+            0,
+            f"Channel: {self.channel_id} | User: {self.user_id}"
+        )
+
+        y = 2
+        for msg in self.messages[-(height - 5):]:
+            self.stdscr.addstr(y, 0, msg[:width - 1])
+            y += 1
+
+        self.stdscr.addstr(
+            height - 2,
+            0,
+            "> "
+        )
+
+        self.stdscr.refresh()
+
+    def run(self):
+        self.login()
+        self.create_channel()
+
+        while True:
+            self.draw()
+
+            height, width = self.stdscr.getmaxyx()
+
+            self.stdscr.move(height - 2, 2)
+            self.stdscr.clrtoeol()
+
+            msg = self.stdscr.getstr(
+                height - 2,
+                2
+            ).decode()
+
+            if msg == "/quit":
+                break
+
+            if not msg.strip():
+                continue
+
+            success = self.send_message(msg)
+
+            if success:
+                self.messages.append(
+                    f"You: {msg}"
+                )
+            else:
+                self.messages.append(
+                    "Failed to send message"
+                )
+
+
+def main(stdscr):
+    app = ChatTUI(stdscr)
+
+    try:
+        app.run()
+    except Exception as e:
+        stdscr.clear()
+        stdscr.addstr(
+            0,
+            0,
+            f"Error: {e}"
+        )
+        stdscr.getch()
 
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(main)

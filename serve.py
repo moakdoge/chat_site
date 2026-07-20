@@ -5,8 +5,9 @@ import uvicorn
 from chatify.app import ChatApp
 from chatify.types.channel import ChannelMetadata
 from chatify.types.json_types.auth import LoginRequest, LoginReturn
-from chatify.types.json_types.channels import NewChannel, NewChannelReturn
+from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
 from chatify.types.json_types.sending import SendRequest
+from chatify.types.user import User
 
 chat = ChatApp(Path(__file__).parent / "config")
 app = FastAPI(
@@ -48,7 +49,7 @@ async def on_login(request: LoginRequest) -> LoginReturn:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)
-):
+) -> User:
     user = chat.users.verify(credentials.credentials)
 
     if user is None:
@@ -69,18 +70,20 @@ async def on_send(request: SendRequest,
     msg_contents = request.content
     channel_info = await chat.channels.load_channel(channel_num)
     if channel_info:
-        await chat.channels.register_message(
+        await chat.messages.send_message(
+            msg_contents,
+            user.id,
             channel_num,
-            await chat.messages.send_message(
-                msg_contents,
-                0,
-                channel_num,
-                None
-            )
-            
+            None
         )
+            
 
 
+@app.get("/channels/get")
+async def get_channels(limit: int = 50) -> FoundChannels:
+    '''Gets the channels.'''
+    channels = chat.channels.channel_ids[0:limit]
+    return FoundChannels(channels=channels)
 @app.post("/channels/new")
 async def on_new_channel(request: NewChannel, user: HTTPAuthorizationCredentials = Depends(get_current_user)) -> NewChannelReturn:
     chl = await chat.channels.new_channel(ChannelMetadata(name=request.name, description=request.description))

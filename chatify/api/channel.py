@@ -14,6 +14,20 @@ class ChannelSubsystem:
     def __init__(self, parent: "ChatApp") -> None:
         self.CACHE: dict[ChannelID, Channel] = {} 
         self.parent = parent
+        self.channel_ids: list[int] = []
+
+        self.load_all()
+        self.parent.schedule_task(self._load_loop, repeat_interval=5)
+        self.parent.on_exit(self._on_exit)
+
+    async def _on_exit(self):
+        for id, chl in self.CACHE.copy().items():
+            print(f"Unloading: {chl} ({id})")
+            await self._unload(chl)
+
+    def load_all(self):
+        for file in (self.parent.config._folder / "channels").glob("*.json"):
+            self.channel_ids.append(int(file.stem))
 
     async def load_channel(self, channelID: ChannelID) -> Channel | None:
         channel = self.CACHE.get(channelID, None)
@@ -88,6 +102,7 @@ class ChannelSubsystem:
             [],
             new_id
         )
+        self.channel_ids.append(new_id)
         await self.save(self.CACHE[new_id])
         return self.CACHE[new_id]
     

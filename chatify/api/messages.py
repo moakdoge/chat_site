@@ -24,7 +24,8 @@ class MessageLib:
 
     async def export_message(self, message: Message):
         '''Exports a message to save to JSON'''
-        return message.__dict__
+        #parts = dir(message)
+        return message._asdict()
     
     async def import_message(self, data: dict):
         '''Imports a message from json'''
