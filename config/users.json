@@ -2,12 +2,7 @@
   "15496218509984489678": {
     "username": "moakdoge",
     "token": "$argon2id$v=19$m=65536,t=3,p=4$CDUUrMYq4IkvFDZdm3kmVw$JTRPb++SdCn6ALNBGyzYKCXG25FOLQL98Y5EPFCW3sY",
-    "session_tokens": [
-      {
-        "expires": 1784568715,
-        "value": "Bearer hZ8iS2Kyb95bfFGpzVT5R2IvV1Vsjh0xMcHsWfLH3NyuRwNhuOrFyDeqP5KMNCmPOG4uF2cSucrfCyVXNDUxBA"
-      }
-    ],
+    "session_tokens": [],
     "id": 15496218509984489678
   }
 }

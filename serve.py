@@ -3,13 +3,16 @@ from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
 from chatify.app import ChatApp
+from chatify.types.json_types.auth import LoginRequest, LoginReturn
 from chatify.types.json_types.sending import SendRequest
+
+chat = ChatApp(Path(__file__).parent / "config")
 app = FastAPI(
     title="chatify",
     description="Some chat app idk lmao",
-    version="0.0.1a"
+    version=chat.config.version,
+    lifespan=chat.run
 )
-chat = ChatApp(Path(__file__).parent / "config")
 chat.config.debug = True
 security = HTTPBearer()
 
@@ -26,12 +29,28 @@ async def not_found(request: Request, exc):
 async def server_error(request: Request, exc):
     return chat.files.return_status(500)
 
+@app.post("/api/login/{user}")
+async def on_login(request: LoginRequest) -> LoginReturn:
+    username = request.username
+    password = request.password
+    output = chat.users.login(username, password)
+    if output is None:
+        return LoginReturn(success=False, session_token="", id=-1, error="Unknown login")
+    user, token = output
+    return LoginReturn(
+        success=True,
+        session_token=token.value,
+        id=user.id,
+        error=""
+    )
+
 @app.post("/channels/{channel_num}/send")
 async def on_send(request: SendRequest, 
                   channel_num: int,
                   credentials: HTTPAuthorizationCredentials = Depends(security)):
     '''Sends a message to a channel number'''
 
+    print(credentials.credentials)
     msg_contents = request.content
     channel_info = await chat.channels.load_channel(channel_num)
     if channel_info:
@@ -45,6 +64,7 @@ async def on_send(request: SendRequest,
             )
             
         )
+
 
 if __name__ == "__main__":
     login = chat.users.login("moakdoge", "1234")

@@ -1,4 +1,6 @@
+import asyncio
 import json
+import time
 from typing import TYPE_CHECKING
 
 from chatify.types.user import User, Token
@@ -13,6 +15,7 @@ class UserManager:
         self.load_all()
 
         self.parent.on_exit(self._on_exit)
+        self.parent.schedule_task(self._asession_purge, repeat_interval=1)
 
     def get_user(self, *, id: UserID | None = None, username: str | None = None) -> User | None:
         '''Gets a user by a user ID or username'''
@@ -148,7 +151,27 @@ class UserManager:
         token = Token.generate(1800) #30 min
         return usr, token
     
-        
+
+
+    async def _asession_purge(self):
+        for id, usr in self.users.items():
+            usr.session_tokens = [_ for _ in usr.session_tokens if not _.expired]
+
+
+    def verify(self, user: UserID, session: str) -> bool:
+        '''Checks if a session token is valid'''
+        usr = self.get_user(id=user)
+
+        if usr is None:
+            raise #idk lmao
+
+        found = [s for s in usr.session_tokens if s.value == session]
+        valid = len(found) > 0
+        if valid:
+            if found[0].expired:
+                return False
+            return True
+        return False
 
     def _on_exit(self):
         self.save_all()

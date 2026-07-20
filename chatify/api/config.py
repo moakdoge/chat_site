@@ -69,7 +69,7 @@ class Config:
 <h1>Error loading normal 404 page; if you see this as a non-developer, something has gone seriously wrong!</h1><nl>
 <h2>If you are the site developer, please put a file named 404.html into your templates folder!</h2>
         '''
-
+        self.version = "0.0.1b"
         self._load()
         self._save()
 

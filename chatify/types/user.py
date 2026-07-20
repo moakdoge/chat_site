@@ -18,6 +18,10 @@ class Token:
             value=f"Bearer {value}",
             expiration_time=exp_time
         )
+    
+    @property
+    def expired(self) -> bool:
+        return (time.time() > self.expiration_time)
 
 
 @dataclass(slots=True)
