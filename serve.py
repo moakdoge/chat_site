@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
@@ -44,14 +44,27 @@ async def on_login(request: LoginRequest) -> LoginReturn:
         error=""
     )
 
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    user = chat.users.verify(credentials.credentials)
+
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    return user
+
 @app.post("/channels/{channel_num}/send")
 async def on_send(request: SendRequest, 
                   channel_num: int,
-                  credentials: HTTPAuthorizationCredentials = Depends(security)):
+                  user: HTTPAuthorizationCredentials = Depends(get_current_user)):
     '''Sends a message to a channel number'''
 
-    valid = chat.users.verify(credentials.credentials)
-    print("VALID: ", valid)
+    print(user)
+    
     msg_contents = request.content
     channel_info = await chat.channels.load_channel(channel_num)
     if channel_info:
@@ -68,9 +81,6 @@ async def on_send(request: SendRequest,
 
 
 if __name__ == "__main__":
-    login = chat.users.login("moakdoge", "1234")
-    print(login)
-    chat.users.save_all()
     uvicorn.run(
         app=app,
         host=chat.config.host,

@@ -170,8 +170,8 @@ class UserManager:
                     return id
         return None
     
-    def verify(self, session: str, user: UserID | None = None) -> bool:
-        '''Checks if a session token is valid'''
+    def verify(self, session: str, user: UserID | None = None) -> User:
+        '''Checks if a session token is valid. Returns the user if valid'''
 
         if user is None:
             user = self.get_id_from_session(session)
@@ -184,9 +184,9 @@ class UserManager:
         valid = len(found) > 0
         if valid:
             if found[0].expired:
-                return False
-            return True
-        return False
+                raise
+            return usr
+        raise
 
     def _on_exit(self):
         self.save_all()
