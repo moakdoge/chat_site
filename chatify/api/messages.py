@@ -22,6 +22,13 @@ class MessageLib:
 
         return number
 
+    async def export_message(self, message: Message):
+        '''Exports a message to save to JSON'''
+        return message.__dict__
+    
+    async def import_message(self, data: dict):
+        '''Imports a message from json'''
+        return Message(**data)
     async def send_message(
         self,
         content: str,

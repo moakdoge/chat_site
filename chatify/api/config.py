@@ -42,7 +42,9 @@ class Config:
             data: dict):
         '''Saves a custom file'''
 
-        with open(self._folder / file, "w") as f:
+        fi = (self._folder / file)
+        fi.parent.mkdir(exist_ok=True, parents=True)
+        with open(fi, "w") as f:
             dumped = json.dumps(data, indent=2 if self.debug else 0)
             f.write(dumped)        
 
@@ -62,6 +64,7 @@ class Config:
         self._folder.mkdir(exist_ok=True, parents=True)
         self._parent = parent
         self.host: str = os.getenv("HOST", "0.0.0.0")
+        self.lazy_load_time = 3 #TESTING; should be closer to 30 or 60. in seconds.
         self.port: int = int(os.getenv("PORT", "8000"))
         self.debug: bool = debug #os.getenv("DEBUG", "false").lower() == "true"
         self.base_404_message = '''

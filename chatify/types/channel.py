@@ -12,3 +12,4 @@ class Channel:
     metadata: ChannelMetadata
     messages: list[Message]
     id: ChannelID
+    last_loaded: int = 0

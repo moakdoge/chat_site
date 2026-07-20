@@ -27,8 +27,19 @@ def main():
 
     print("Logged in as:", user_id)
 
+    channel_info = requests.post(
+        f"{BASE_URL}/channels/new",
+        headers={
+            "Authorization": f"Bearer {token}"
+        },
+        json={
+            "name": "test_channel",
+            "description": "unknown"
+        }
+    )
+
     # Send message
-    channel = 1  # change this to a real channel
+    channel = channel_info.json()["id"]  # change this to a real channel
 
     send_response = requests.post(
         f"{BASE_URL}/channels/{channel}/send",

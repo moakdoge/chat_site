@@ -3,7 +3,9 @@ from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
 from chatify.app import ChatApp
+from chatify.types.channel import ChannelMetadata
 from chatify.types.json_types.auth import LoginRequest, LoginReturn
+from chatify.types.json_types.channels import NewChannel, NewChannelReturn
 from chatify.types.json_types.sending import SendRequest
 
 chat = ChatApp(Path(__file__).parent / "config")
@@ -63,7 +65,6 @@ async def on_send(request: SendRequest,
                   user: HTTPAuthorizationCredentials = Depends(get_current_user)):
     '''Sends a message to a channel number'''
 
-    print(user)
     
     msg_contents = request.content
     channel_info = await chat.channels.load_channel(channel_num)
@@ -80,7 +81,24 @@ async def on_send(request: SendRequest,
         )
 
 
+@app.post("/channels/new")
+async def on_new_channel(request: NewChannel, user: HTTPAuthorizationCredentials = Depends(get_current_user)) -> NewChannelReturn:
+    chl = await chat.channels.new_channel(ChannelMetadata(name=request.name, description=request.description))
+    if chl:
+        return NewChannelReturn(
+            success=True,
+            error="",
+            id=chl.id
+        )
+    return NewChannelReturn(
+        success=False,
+        error="Could not make channel",
+        id=-1
+    )
+
 if __name__ == "__main__":
+
+
     uvicorn.run(
         app=app,
         host=chat.config.host,
