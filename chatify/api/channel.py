@@ -64,6 +64,7 @@ class ChannelSubsystem:
         config.save_custom(f"channels/{channel.id}.json", await self.export_channel(channel))
 
     async def load(self, channelID: ChannelID) -> Channel:
+        print("LOADING", channelID)
         file = f"channels/{channelID}.json"
         config = self.parent.config
         data = config.load_custom(file)
@@ -79,6 +80,7 @@ class ChannelSubsystem:
         return self.CACHE[data["id"]] 
 
     async def _unload(self, channel: Channel):
+        print("UNLOADING", channel.id)
         await self.save(channel)
         del self.CACHE[channel.id]
 

@@ -17,7 +17,7 @@ class MessageLib:
 
         number = (
             (part1.id << 24) | # 40 bit metadata id lmao
-            secrets.randbits(24)
+            len(part1.messages)
         )
 
         return number
