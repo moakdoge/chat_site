@@ -13,6 +13,7 @@ import chatify.api.config
 import chatify.api.users
 import chatify.api.security
 import chatify.api.logger
+import chatify.api.attachments
 import atexit, time, psutil
 from contextlib import asynccontextmanager
 
@@ -44,6 +45,7 @@ class ChatApp:
         self.messages = chatify.api.messages.MessageLib(self)
         self.files = chatify.api.files.FileManager(self)
         self.users = chatify.api.users.UserManager(self)
+        self.attachments = chatify.api.attachments.AttachmentLib(self)
 
 
         
