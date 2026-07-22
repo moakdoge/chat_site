@@ -139,6 +139,19 @@ class ChannelSubsystem:
         await self.save(self.CACHE[data["id"]])
         return self.CACHE[data["id"]] 
 
+    async def get_metadata(self, channelID: ChannelID) -> ChannelMetadata:
+        '''Gets the metadata for a channel'''
+        if channelID in self.CACHE:
+            return self.CACHE[channelID].metadata
+        
+        metadata_file, _  = self._get_save_files(channelID)
+        if metadata_file.exists():
+            md = self.parent.config.load_custom(metadata_file)
+            return ChannelMetadata(*md)
+        
+        self.parent.console.error(f"Could not poll metadata for channel #{channelID}")
+        raise
+    
     async def _unload(self, channel: Channel):
         self.parent.console.debug(f"Unloading channel #{channel.id}")
         await self.save(channel)

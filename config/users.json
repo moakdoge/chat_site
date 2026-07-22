@@ -4,18 +4,6 @@
     "token": "$argon2id$v=19$m=65536,t=3,p=4$xu5/NHih202dDRInKXuj9Q$8vgY3a/GJIdHBPTmWr6xW2HmndcudLNO6JUmduT3XKk",
     "session_tokens": [
       {
-        "expires": 1784739547,
-        "value": "Bearer oXginZF1aQO4bqO-tNp9s6fk3emEVqHXLI3Ho4rxyCw9CnoCVFOGu4-GdEGcfb6Yc86J5Mxlq5QEM5LW1TWLlw"
-      },
-      {
-        "expires": 1784739574,
-        "value": "Bearer 0yfgXS8p_AEXTevVtyNfknIrxb72pcvbE5bp-YuemnpCaMHqqdp6imWxPoHTtsk7a7_CsnyT0FZ92QqTWF107A"
-      },
-      {
-        "expires": 1784739600,
-        "value": "Bearer WROcYHCGiiOu-4u507CnaWTAZSqC1t1QtflZQBIsnHjGStp-nGHtNKjAkfahMp_0SbdtonjKEkjkPW4GX3NAgA"
-      },
-      {
         "expires": 1784739893,
         "value": "Bearer nCjF81lvyhDRZ3ywV6Rjf80bpkDqxJSG25qU6zANvmVDdqmNrybl_CmJ5IGcGN1TgCvo5zneaCaA4HJfeaXgtQ"
       },

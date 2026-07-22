@@ -1,6 +1,7 @@
 import os, json
 from dataclasses import dataclass
 from pathlib import Path
+import sys
 import uuid
 from typing import TYPE_CHECKING
 
@@ -90,7 +91,26 @@ class Config:
         
         with open(self._folder / file, "rb") as f:
             return self._load_contents(f.read())
-                 
+
+
+    @property
+    def _lockfile(self) -> Path:
+        return self._folder / "app.lock"
+    
+    def _is_locked(self) -> bool:
+        return self._lockfile.exists() 
+         
+    def _lock_pid(self) -> int | None:
+        if not self._is_locked():
+            return None
+        return int(self._lockfile.read_text())
+
+    def _lock(self):
+        self._lockfile.write_text(str(os.getpid()))
+
+    def _unlock(self):
+        os.remove(self._lockfile)
+
     def __init__(self, base: Path, parent: "ChatApp", debug: bool = False) -> None:
         parent.on_exit(self._on_exit)
         self._folder = base

@@ -1,6 +1,8 @@
 import asyncio
 import inspect
+import os
 from pathlib import Path
+import sys
 from typing import Any, Callable
 
 from fastapi import FastAPI
@@ -11,7 +13,7 @@ import chatify.api.config
 import chatify.api.users
 import chatify.api.security
 import chatify.api.logger
-import atexit, time
+import atexit, time, psutil
 from contextlib import asynccontextmanager
 
 from chatify.types.internal import AsyncTask
@@ -28,10 +30,23 @@ class ChatApp:
         self.security = chatify.api.security.SecurityLib(self)
         self.config = chatify.api.config.Config(base, self) # type: ignore
         self.config.debug = debug
+
+        if self.config._is_locked():
+            if psutil.pid_exists(self.config._lock_pid() or 999999):
+                self.console.error(f"Lockfile was found! (PID: {self.config._lock_pid()})")
+                sys.exit(1)
+            else:
+                self.config._unlock()
+                self.console.warn(f"Lockfile for non-existant process found, unlocking manually...")
+        self.config._lock()
+        
         self.channels = chatify.api.channel.ChannelSubsystem(self)
         self.messages = chatify.api.messages.MessageLib(self)
         self.files = chatify.api.files.FileManager(self)
         self.users = chatify.api.users.UserManager(self)
+
+
+        
 
         _end = time.time_ns()
         _duration = (_end - _start) / 1_000_000
@@ -57,11 +72,12 @@ class ChatApp:
     async def _exit(self):
         for fn in self._on_shutdown:
             _async = inspect.iscoroutinefunction(fn)
-            print(f"Shutting down: {fn.__module__} ({"async" if _async else "sync"} {fn.__name__})")
+            self.console.info(f"Shutting down: {fn.__module__} ({"async" if _async else "sync"} {fn.__name__})")
             if _async:
                 await fn()
             else:
-                fn() 
+                fn()
+        self.config._unlock() 
 
     def schedule_task(self, tsk: Callable, repeat_interval: int = 99999999, *args):
         self._registered_tasks.append(
