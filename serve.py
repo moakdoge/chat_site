@@ -159,7 +159,8 @@ async def on_send(request: SendRequest,
             msg_contents,
             user.id,
             channel_num,
-            request.reply
+            request.reply,
+            attachments=request.attachments
         )
             
 

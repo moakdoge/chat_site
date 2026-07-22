@@ -16,6 +16,11 @@ class SendRequest(BaseModel):
         default=None
     )
 
+    attachments: tuple[AttachmentID, ...] = Field(
+        default=(),
+        description="Attachment(s) to add to the message."
+    )
+
 class EditRequest(BaseModel):
     content: str = Field(
         description="The content to send in the message.",

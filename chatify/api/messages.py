@@ -86,7 +86,8 @@ class MessageLib:
         content: str,
         author: UserID,
         channel: ChannelID,
-        timestamp: int | None = None
+        timestamp: int | None = None,
+        attachments: tuple[AttachmentID, ...] = ()
     ):
         #TODO: implement
         id = await self.generate_snowflake(
@@ -105,7 +106,7 @@ class MessageLib:
             author=author,
             id=id,
             timestamp=timestamp,
-            attachments=()
+            attachments=attachments
         )
         self.parent.console.debug(f"Message send in #{channel} (@",user.username,")", seperator="") # type: ignore
         await self.parent.channels.register_message(channel, messageOBJ)
