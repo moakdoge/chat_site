@@ -1,12 +1,14 @@
 import asyncio
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, File, HTTPException, Request, Response, UploadFile
 from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
 from chatify.app import ChatApp
 from chatify.types.attachment import AttachmentObject
 from chatify.types.channel import ChannelMetadata
+from chatify.types.core import AttachmentID
+from chatify.types.json_types.attachments import AttachmentAccepted
 from chatify.types.json_types.auth import LoginRequest, LoginReturn
 from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
 from chatify.types.json_types.reading import ReadRequestReturn
@@ -182,6 +184,39 @@ async def on_new_channel(request: NewChannel, user: HTTPAuthorizationCredentials
         success=False,
         error="Could not make channel",
         id=-1
+    )
+
+@app.post("/attachments/upload")
+async def upload_attachment(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user)
+) -> AttachmentAccepted:
+    '''Uploads an attachment; '''
+    data = await file.read()
+
+    attachment = AttachmentObject.new(
+        data,
+        file.filename or "unknown.raw",
+        file.content_type or "application/octet-stream"
+    )
+
+    chat.attachments.save_attachment(attachment)
+    return AttachmentAccepted(success=True, id=attachment.id)
+
+@app.get("/attachments/download/{attachment_id}")
+async def download_attachment(
+    attachment_id: AttachmentID,
+    user: User = Depends(get_current_user)
+) -> Response:
+    '''Downloads an attachment.'''
+    attachment = chat.attachments.get_attachment(attachment_id)
+
+    return Response(
+        content=attachment.data,
+        media_type=attachment.mime_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{attachment.name}"'
+        }
     )
 
 if __name__ == "__main__":
