@@ -119,10 +119,13 @@ class UserManager:
         )
 
         self.users[new_user.id] = new_user
+        self.save_all()
         return new_user
     
-    def generate_session_token(self, user: UserID, duration: int = 1800) -> Token:
+    def generate_session_token(self, user: UserID, duration: int = 0) -> Token:
         '''Generates a valid session token. Duration is in SECONDS before it expires.'''
+        if duration == 0:
+            duration = self.parent.config.timeout
         usr = self.get_user(id=user)
         tkn = Token.generate(duration)
 
@@ -149,8 +152,9 @@ class UserManager:
         if not verified:
             return None
         
-        token = Token.generate(1800) #30 min
+        token = Token.generate(self.parent.config.timeout) #30 min
         usr.session_tokens.append(token)
+        self.save_all()
         return usr, token
     
 

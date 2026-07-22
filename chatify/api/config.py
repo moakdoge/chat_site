@@ -65,6 +65,7 @@ class Config:
         self._parent = parent
         self.host: str = os.getenv("HOST", "0.0.0.0")
         self.lazy_load_time = 3 #TESTING; should be closer to 30 or 60. in seconds.
+        self.timeout = 30 * 60 #The amount of time for a session to be valid. In seconds.
         self.port: int = int(os.getenv("PORT", "8000"))
         self.debug: bool = debug #os.getenv("DEBUG", "false").lower() == "true"
         self.base_404_message = '''
