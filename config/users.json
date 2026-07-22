@@ -4,10 +4,6 @@
     "token": "$argon2id$v=19$m=65536,t=3,p=4$xu5/NHih202dDRInKXuj9Q$8vgY3a/GJIdHBPTmWr6xW2HmndcudLNO6JUmduT3XKk",
     "session_tokens": [
       {
-        "expires": 1784744292,
-        "value": "Bearer XVLDqbw6_lx6BPYwvRCpmU5Bk-5HIniZweHkLYvDW5b61eEhf4xjOtYuRC6E7-USK_VOK67Y25U2Z9T-BEcTRQ"
-      },
-      {
         "expires": 1784744543,
         "value": "Bearer mhoO4uso3AyMIbFdldCRavis2waGEhRt4RwTVEYM5k5RMyxdbMbpAqg-JPM85NNJApRUcybwZRCfE36liiCHNw"
       },

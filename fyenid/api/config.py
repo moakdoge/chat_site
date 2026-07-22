@@ -122,6 +122,7 @@ class Config:
         self.timeout = 30 * 60 #The amount of time for a session to be valid. In seconds.
         self.port: int = int(os.getenv("PORT", "8000"))
         self.debug: bool = debug #os.getenv("DEBUG", "false").lower() == "true"
+        self.product_name: str = "fyenid"
         self.base_404_message = '''
 <!DOCTYPE html>
 <h1>Error loading normal 404 page; if you see this as a non-developer, something has gone seriously wrong!</h1><nl>

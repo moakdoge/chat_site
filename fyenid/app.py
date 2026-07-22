@@ -52,7 +52,7 @@ class ChatApp:
         _duration = (_end - _start) / 1_000_000
 
         self.console.success(f"Loaded {self._mods_loaded} modules in {_duration:.2f}ms")
-        self.console.success(f"Welcome to chatify {self.config.version}!")
+        self.console.success(f"Welcome to {self.config.product_name} {self.config.version}!")
         self.console.bar()
         self.console.newline()
         self._track_setattrs = False

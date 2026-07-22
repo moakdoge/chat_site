@@ -23,11 +23,12 @@ class Logger:
     def _process_args(self, args: tuple[Any, ...], join: str = " ") -> str:
         msg: list[str] = []
         decimal_pattern = re.compile(r"(?<!\w)(\d+\.\d+)(?!\w)")
+        product_name = getattr(getattr(self.parent, "config", None), "product_name", "")
         for obj in args:
             try:
                 value = str(obj)
                 #chatify
-                value = value.replace("chatify", f"{Colors.BLUE}chatify{Colors.RESET}")
+                value = value.replace(product_name, f"{Colors.BLUE}{product_name}{Colors.RESET}")
                 value = decimal_pattern.sub(f"{Colors.CYAN}\\1{Colors.RESET}", value)
                 msg.append(value)
             except Exception:
