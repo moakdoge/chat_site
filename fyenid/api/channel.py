@@ -6,13 +6,13 @@ from pathlib import Path
 import secrets
 
 import time
-from chatify.types.core import ChannelID
-from chatify.types.channel import *
-from chatify.types.decorators import *
-from chatify.types.message import Message
+from fyenid.types.core import ChannelID
+from fyenid.types.channel import *
+from fyenid.types.decorators import *
+from fyenid.types.message import Message
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from chatify.app import ChatApp
+    from fyenid.app import ChatApp
 
 class ChannelSubsystem:
     #TODO: Make this not dogshit

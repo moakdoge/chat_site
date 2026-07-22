@@ -4,11 +4,11 @@ import json
 import time
 from typing import TYPE_CHECKING
 
-from chatify.types.user import User, Token
-from chatify.types.core import UserID
-from chatify.types.decorators import *
+from fyenid.types.user import User, Token
+from fyenid.types.core import UserID
+from fyenid.types.decorators import *
 if TYPE_CHECKING:
-    from chatify.app import ChatApp
+    from fyenid.app import ChatApp
 
 class UserManager:
     def __init__(self, parent: "ChatApp") -> None:

@@ -4,14 +4,14 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
-from chatify.app import ChatApp
-from chatify.types.channel import ChannelMetadata
-from chatify.types.json_types.auth import LoginRequest, LoginReturn
-from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
-from chatify.types.json_types.reading import ReadRequestReturn
-from chatify.types.json_types.sending import EditRequest, SendRequest
-from chatify.types.json_types.user import UserObject
-from chatify.types.user import Token, User
+from fyenid.app import ChatApp
+from fyenid.types.channel import ChannelMetadata
+from fyenid.types.json_types.auth import LoginRequest, LoginReturn
+from fyenid.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
+from fyenid.types.json_types.reading import ReadRequestReturn
+from fyenid.types.json_types.sending import EditRequest, SendRequest
+from fyenid.types.json_types.user import UserObject
+from fyenid.types.user import Token, User
 
 chat = ChatApp(Path(__file__).parent / "config", debug=True)
 app = FastAPI(
@@ -119,17 +119,26 @@ async def edit(edit: EditRequest, message_id: int,  user: User = Depends(get_cur
     return Response(status_code=200)
 
 @app.get("/channels/{channel_num}/read")
-async def read(channel_num: int, user: User = Depends(get_current_user), limit: int=50) -> ReadRequestReturn:
+async def read(channel_num: int, user: User = Depends(get_current_user), limit: int=50, before: int = -1, after: int = -1) -> ReadRequestReturn:
     msgs = await chat.channels.load_channel(channel_num)
 
     if not msgs:
         raise HTTPException(500)
     
+
+    if before > 0:
+        _, ind = chat.messages._get_message_info_from_id(before)
+        messages = msgs.messages[max(0, ind - limit):ind]
+    elif after > 0:
+        _, ind = chat.messages._get_message_info_from_id(after)
+        messages = msgs.messages[ind+1:ind+1+limit]
+    else:
+        messages = msgs.messages[:limit]
     return ReadRequestReturn(
         messages=await asyncio.gather(
             *[
                 chat.messages.export_message(msg)
-                for msg in msgs.messages[:limit]
+                for msg in messages
             ]
         )
     )

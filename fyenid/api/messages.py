@@ -1,10 +1,10 @@
-from chatify.types.core import *
-from chatify.types.message import *
+from fyenid.types.core import *
+from fyenid.types.message import *
 import time, math, secrets
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from chatify.app import ChatApp
+    from fyenid.app import ChatApp
 
 class MessageLib:
     def __init__(self, parent: "ChatApp") -> None:
@@ -61,7 +61,7 @@ class MessageLib:
         msg=await self.import_message(newinst)
         channel.messages[index] = msg
         await self.parent.channels.journal(msg, channel)   
-        
+
     async def generate_snowflake(self,channel: ChannelID):
         part1 = await self.parent.channels.load_channel(channel)
         if part1 is None:

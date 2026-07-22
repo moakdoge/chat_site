@@ -5,10 +5,10 @@ import sys
 import uuid
 from typing import TYPE_CHECKING
 
-from chatify.types.decorators import on_exit
+from fyenid.types.decorators import on_exit
 
 if TYPE_CHECKING:
-    from chatify.app import ChatApp
+    from fyenid.app import ChatApp
 
 class Config:
     _folder: Path

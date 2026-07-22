@@ -13,7 +13,7 @@ class Colors:
 
 
 if TYPE_CHECKING:
-    from chatify.app import ChatApp
+    from fyenid.app import ChatApp
 class Logger:
     def __init__(self, parent: "ChatApp") -> None:
         self.stdout = sys.stdout
@@ -22,9 +22,13 @@ class Logger:
 
     def _process_args(self, args: tuple[Any, ...], join: str = " ") -> str:
         msg: list[str] = []
+        decimal_pattern = re.compile(r"(?<!\w)(\d+\.\d+)(?!\w)")
         for obj in args:
             try:
                 value = str(obj)
+                #chatify
+                value = value.replace("chatify", f"{Colors.BLUE}chatify{Colors.RESET}")
+                value = decimal_pattern.sub(f"{Colors.CYAN}\\1{Colors.RESET}", value)
                 msg.append(value)
             except Exception:
                 pass
