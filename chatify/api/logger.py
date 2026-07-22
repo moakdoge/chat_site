@@ -40,7 +40,7 @@ class Logger:
 
     def error(self, *args: Any, seperator: str = " ", attach_exception: bool = False):
         contents = self._process_args(args, join=seperator)
-        message = f"{Colors.RED}ERROR: {Colors.RESET}{contents}{self.newline}"
+        message = f"{Colors.RED}ERROR: {Colors.RESET}{contents}{"\n"}"
 
         if attach_exception:
             exc_type, exc_value, tb = sys.exc_info()
@@ -51,19 +51,19 @@ class Logger:
 
     def warn(self, *args: Any, seperator: str = " "):
         contents = self._process_args(args, join=seperator)
-        message = f"{Colors.YELLOW}WARNING: {Colors.RESET}{contents}{self.newline}"
+        message = f"{Colors.YELLOW}WARNING: {Colors.RESET}{contents}{"\n"}"
         self.stderr.write(message)
         self.stderr.flush()
 
     def info(self, *args: Any, seperator: str = " "):
         contents = self._process_args(args, join=seperator)
-        message = f"{Colors.GRAY}LOG: {Colors.RESET}{contents}{self.newline}"
+        message = f"{Colors.GRAY}LOG: {Colors.RESET}{contents}{"\n"}"
         self.stdout.write(message)
         self.stdout.flush()
 
     def success(self, *args: Any, seperator: str = " "):
         contents = self._process_args(args, join=seperator)
-        message = f"{Colors.GREEN}SUCCESS: {Colors.RESET}{contents}{self.newline}"
+        message = f"{Colors.GREEN}SUCCESS: {Colors.RESET}{contents}{"\n"}"
         self.stdout.write(message)
         self.stdout.flush()
 
@@ -73,10 +73,21 @@ class Logger:
                 return
         
         contents = self._process_args(args, join=seperator)
-        message = f"{Colors.GRAY}DEBUG: {Colors.RESET}{contents}{self.newline}"
+        message = f"{Colors.GRAY}DEBUG: {Colors.RESET}{contents}{"\n"}"
         self.stdout.write(message)
         self.stdout.flush()
     
-    @property
-    def newline(self):
-        return "\n"
+    def bar(self):
+        length = 80
+        st = "-" * length
+
+        self.stdout.write(st)
+        self.stdout.flush()
+
+
+    def newline(self, stderr: bool = False):
+        if stderr:
+            self.stderr.write("\n")
+            self.stderr.flush()
+        self.stdout.write("\n")
+        self.stdout.flush()

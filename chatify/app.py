@@ -37,7 +37,10 @@ class ChatApp:
         _duration = (_end - _start) / 1_000_000
 
         self.console.success(f"Loaded {self._mods_loaded} modules in {_duration:.2f}ms")
-    
+        self.console.bar()
+        self.console.newline()
+        self._track_setattrs = False
+
     def __setattr__(self, name: str, value: Any):
         object.__setattr__(self, name, value)
         if name.startswith("_"):
