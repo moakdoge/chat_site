@@ -53,8 +53,7 @@ class MessageLib:
 
         if not channel:
             raise
-            
-
+        
         newinst = message._asdict()
         newinst["edited"]=True
         newinst["content"]=content

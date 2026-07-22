@@ -27,7 +27,6 @@ class ChannelSubsystem:
 
     async def journal(self, message: Message, channel: Channel):
         '''Creates a journal file'''
-        self.parent.console.error(f"saving", message)
         _json = json.dumps(await self.parent.messages.export_message(message))
         metadata, messages = self._get_save_files(channelID=channel.id)
         tmpjournal = metadata.parent / ".tmpjournal"
