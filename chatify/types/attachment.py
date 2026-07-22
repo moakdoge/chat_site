@@ -20,7 +20,7 @@ class AttachmentObject:
             if m:
                 mime_type = m.mime
         
-        id = base64.urlsafe_b64encode(
+        id = "attachment-"+base64.urlsafe_b64encode(
             secrets.token_bytes(16)
         ).decode().rstrip("=")
         return cls(

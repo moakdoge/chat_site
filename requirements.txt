@@ -1,0 +1,9 @@
+argon2_cffi==25.1.0
+fastapi==0.139.2
+filetype==1.2.0
+psutil==7.2.2
+pydantic==2.13.4
+python_multipart==0.0.32
+Requests==2.34.2
+uvicorn==0.51.0
+websockets==16.0
