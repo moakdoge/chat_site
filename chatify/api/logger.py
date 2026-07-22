@@ -13,7 +13,7 @@ class Colors:
 
 
 if TYPE_CHECKING:
-    from fyenid.app import ChatApp
+    from chatify.app import ChatApp
 class Logger:
     def __init__(self, parent: "ChatApp") -> None:
         self.stdout = sys.stdout
