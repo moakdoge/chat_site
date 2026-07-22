@@ -27,6 +27,7 @@ class ChannelSubsystem:
 
     async def journal(self, message: Message, channel: Channel):
         '''Creates a journal file'''
+        self.parent.console.error(f"saving", message)
         _json = json.dumps(await self.parent.messages.export_message(message))
         metadata, messages = self._get_save_files(channelID=channel.id)
         tmpjournal = metadata.parent / ".tmpjournal"
@@ -108,15 +109,17 @@ class ChannelSubsystem:
 
         if tmpjournal.exists():
             self.parent.console.warn(f".tmpjournal is found; loading off it")
-            _messages = []
             with open(tmpjournal, "r") as f:
                 _lines = f.read().splitlines()
                 for i, line in enumerate(_lines):
                     try:
-                        _messages.append(json.loads(line))
+                        msg = json.loads(line)
+                        id = msg["id"]
+                        chan, ind = self.parent.messages._get_message_info_from_id(id) 
+                        message_contents[ind] = msg
+
                     except json.JSONDecodeError:
                         self.parent.console.error("Failed to load message",i,"(corrupted)")
-            message_contents.extend(_messages) # type: ignore
             os.remove(tmpjournal)
         
         data = {

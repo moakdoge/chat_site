@@ -10,3 +10,10 @@ class SendRequest(BaseModel):
     author: UserID = Field(
         description="The user ID of the sender; Is validated.",
     )
+
+class EditRequest(BaseModel):
+    content: str = Field(
+        description="The content to send in the message.",
+        examples=["Hello, world!"],
+        max_length=2048
+    )

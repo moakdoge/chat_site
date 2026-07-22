@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
@@ -9,7 +9,7 @@ from chatify.types.channel import ChannelMetadata
 from chatify.types.json_types.auth import LoginRequest, LoginReturn
 from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
 from chatify.types.json_types.reading import ReadRequestReturn
-from chatify.types.json_types.sending import SendRequest
+from chatify.types.json_types.sending import EditRequest, SendRequest
 from chatify.types.json_types.user import UserObject
 from chatify.types.user import Token, User
 
@@ -100,6 +100,23 @@ async def get_user_info(user_id: int, user: User = Depends(get_current_user)) ->
     return UserObject(
         username=usr.username
     )
+
+
+@app.delete("/messages/{message_id}/delete")
+async def delete(message_id: int,  user: User = Depends(get_current_user)):
+    msg = await chat.messages.get_message(message_id)
+    if msg.author != user.id:
+        return Response(status_code=403)
+    await chat.messages.delete_message(msg)
+    return Response(status_code=200)
+    
+@app.patch("/messages/{message_id}/edit")
+async def edit(edit: EditRequest, message_id: int,  user: User = Depends(get_current_user)):
+    msg = await chat.messages.get_message(message_id)
+    if msg.author != user.id:
+        return Response(status_code=403)
+    await chat.messages.edit_message(msg, edit.content)
+    return Response(status_code=200)
 
 @app.get("/channels/{channel_num}/read")
 async def read(channel_num: int, user: User = Depends(get_current_user), limit: int=50) -> ReadRequestReturn:

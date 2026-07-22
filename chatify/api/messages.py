@@ -27,7 +27,41 @@ class MessageLib:
         if msg.id == id:
             return msg
         raise
-    
+
+    async def delete_message(self, message: MessageID | Message):
+        if isinstance(message, int):
+            message = await self.get_message(message)
+        channel_id, index = self._get_message_info_from_id(message.id)
+        channel = await self.parent.channels.load_channel(channel_id)
+
+        if not channel:
+            raise
+            
+
+        newinst = message._asdict()
+        newinst["deleted"]=True
+        newinst["content"]='[message deleted]'
+        msg=await self.import_message(newinst)
+        channel.messages[index] = msg
+        await self.parent.channels.journal(msg, channel)
+
+    async def edit_message(self, message: MessageID | Message, content: str):
+        if isinstance(message, int):
+            message = await self.get_message(message)
+        channel_id, index = self._get_message_info_from_id(message.id)
+        channel = await self.parent.channels.load_channel(channel_id)
+
+        if not channel:
+            raise
+            
+
+        newinst = message._asdict()
+        newinst["edited"]=True
+        newinst["content"]=content
+        msg=await self.import_message(newinst)
+        channel.messages[index] = msg
+        await self.parent.channels.journal(msg, channel)   
+        
     async def generate_snowflake(self,channel: ChannelID):
         part1 = await self.parent.channels.load_channel(channel)
         if part1 is None:
