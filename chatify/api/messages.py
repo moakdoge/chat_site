@@ -10,6 +10,24 @@ class MessageLib:
     def __init__(self, parent: "ChatApp") -> None:
         self.parent: "ChatApp" = parent
 
+    def _get_message_info_from_id(self, id: MessageID) -> tuple[int, int]:
+        '''Returns the channel ID and index of a message'''
+        channel_id = id >> 24
+        index = id & ((1 << 24) - 1)
+        return channel_id, index
+    
+    async def get_message(self, id: MessageID) -> Message:
+        '''Gets a message by an ID.'''
+        channel, index = self._get_message_info_from_id(id)
+        _channel = await self.parent.channels.load_channel(channel)
+        if _channel is None:
+            self.parent.console.error("Could not find", channel, "from message", id)
+            raise
+        msg = _channel.messages[index]
+        if msg.id == id:
+            return msg
+        raise
+    
     async def generate_snowflake(self,channel: ChannelID):
         part1 = await self.parent.channels.load_channel(channel)
         if part1 is None:
