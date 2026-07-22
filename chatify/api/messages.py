@@ -1,10 +1,10 @@
-from fyenid.types.core import *
-from fyenid.types.message import *
+from chatify.types.core import *
+from chatify.types.message import *
 import time, math, secrets
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from fyenid.app import ChatApp
+    from chatify.app import ChatApp
 
 class MessageLib:
     def __init__(self, parent: "ChatApp") -> None:

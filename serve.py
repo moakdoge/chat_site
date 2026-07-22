@@ -4,14 +4,14 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
-from fyenid.app import ChatApp
-from fyenid.types.channel import ChannelMetadata
-from fyenid.types.json_types.auth import LoginRequest, LoginReturn
-from fyenid.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
-from fyenid.types.json_types.reading import ReadRequestReturn
-from fyenid.types.json_types.sending import EditRequest, SendRequest
-from fyenid.types.json_types.user import UserObject
-from fyenid.types.user import Token, User
+from chatify.app import ChatApp
+from chatify.types.channel import ChannelMetadata
+from chatify.types.json_types.auth import LoginRequest, LoginReturn
+from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
+from chatify.types.json_types.reading import ReadRequestReturn
+from chatify.types.json_types.sending import EditRequest, SendRequest
+from chatify.types.json_types.user import UserObject
+from chatify.types.user import Token, User
 
 chat = ChatApp(Path(__file__).parent / "config", debug=True)
 app = FastAPI(

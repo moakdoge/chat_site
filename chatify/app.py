@@ -6,17 +6,17 @@ import sys
 from typing import Any, Callable
 
 from fastapi import FastAPI
-import fyenid.api.channel
-import fyenid.api.messages
-import fyenid.api.files
-import fyenid.api.config
-import fyenid.api.users
-import fyenid.api.security
-import fyenid.api.logger
+import chatify.api.channel
+import chatify.api.messages
+import chatify.api.files
+import chatify.api.config
+import chatify.api.users
+import chatify.api.security
+import chatify.api.logger
 import atexit, time, psutil
 from contextlib import asynccontextmanager
 
-from fyenid.types.internal import AsyncTask
+from chatify.types.internal import AsyncTask
 class ChatApp:
     def __init__(self, base: Path, *, debug: bool = False) -> None:
         self._on_shutdown: list[Callable] = []
@@ -26,9 +26,9 @@ class ChatApp:
         
         _start = time.time_ns()
 
-        self.console = fyenid.api.logger.Logger(self)
-        self.security = fyenid.api.security.SecurityLib(self)
-        self.config = fyenid.api.config.Config(base, self) # type: ignore
+        self.console = chatify.api.logger.Logger(self)
+        self.security = chatify.api.security.SecurityLib(self)
+        self.config = chatify.api.config.Config(base, self) # type: ignore
         self.config.debug = debug
 
         if self.config._is_locked():
@@ -40,10 +40,10 @@ class ChatApp:
                 self.console.warn(f"Lockfile for non-existant process found, unlocking manually...")
         self.config._lock()
 
-        self.channels = fyenid.api.channel.ChannelSubsystem(self)
-        self.messages = fyenid.api.messages.MessageLib(self)
-        self.files = fyenid.api.files.FileManager(self)
-        self.users = fyenid.api.users.UserManager(self)
+        self.channels = chatify.api.channel.ChannelSubsystem(self)
+        self.messages = chatify.api.messages.MessageLib(self)
+        self.files = chatify.api.files.FileManager(self)
+        self.users = chatify.api.users.UserManager(self)
 
 
         
