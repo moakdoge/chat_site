@@ -1,23 +1,33 @@
+import base64
 from dataclasses import dataclass
 from functools import cached_property
 import secrets
-import filetype
+import filetype, uuid
 
 from chatify.types.core import AttachmentID
 
-@dataclass(slots=True)
+@dataclass(slots=True, unsafe_hash=True)
 class AttachmentObject:
     data: bytes
     name: str
     id: AttachmentID
-
+    mime_type: str
 
     @classmethod
-    def new(cls, data: bytes, name: str):
+    def new(cls, data: bytes, name: str, mime_type: str = "application/octet-stream"):
+        if mime_type == "application/octet-stream":
+            m = filetype.guess(data)
+            if m:
+                mime_type = m.mime
+        
+        id = base64.urlsafe_b64encode(
+            secrets.token_bytes(16)
+        ).decode().rstrip("=")
         return cls(
             data=data,
             name=name,
-            id=secrets.randbits(128)
+            id=id,
+            mime_type=mime_type
         )
     
     @cached_property
@@ -25,13 +35,9 @@ class AttachmentObject:
         return filetype.guess(self.data)
     
     @property
-    def mime(self):
-        return self.guess.mime if self.guess else "application/octet-stream"
-
-    @property
     def ext(self):
         return "."+self.guess.extension if self.guess is not None else ".raw"
 
     @property
     def saveable_props(self) -> tuple[str, ...]:
-        return ("name",)
+        return ("name","mime_type",)

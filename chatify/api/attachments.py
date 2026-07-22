@@ -24,11 +24,11 @@ class AttachmentLib:
     def save_path(self, id: AttachmentID) -> tuple[Path, Path]:
         return (self.attachment_path / str(id)).resolve(),(self.attachment_path / (str(id) + ".meta")).resolve()
     
-    async def exists(self, id: AttachmentID):
+    def exists(self, id: AttachmentID):
         file, meta = self.save_path(id)
         return file.exists()
     
-    async def get_attachment(self, id: AttachmentID) -> AttachmentObject:
+    def get_attachment(self, id: AttachmentID) -> AttachmentObject:
         '''Gets an attachment via its ID.'''
         save_path, meta = self.save_path(id)
         if not save_path.exists():
@@ -37,13 +37,13 @@ class AttachmentLib:
         _meta: dict = {}
         with open(meta, "r") as f:
             _meta = json.load(f)
-        return AttachmentObject(data=contents, *_meta) # pyright: ignore[reportCallIssue]
+        return AttachmentObject(data=contents, id=id, **_meta) # pyright: ignore[reportCallIssue]
 
-    async def save_attachment(self, attachment: AttachmentObject):
+    def save_attachment(self, attachment: AttachmentObject):
         '''Saves an attachment to an ID.'''
 
         id = attachment.id
-        if await self.exists(id):
+        if self.exists(id):
             raise FileExistsError(f"Attachment {id} exists already!")
 
         file, meta = self.save_path(id)

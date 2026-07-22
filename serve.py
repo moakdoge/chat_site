@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import uvicorn
 from chatify.app import ChatApp
+from chatify.types.attachment import AttachmentObject
 from chatify.types.channel import ChannelMetadata
 from chatify.types.json_types.auth import LoginRequest, LoginReturn
 from chatify.types.json_types.channels import FoundChannels, NewChannel, NewChannelReturn
@@ -184,7 +185,6 @@ async def on_new_channel(request: NewChannel, user: HTTPAuthorizationCredentials
     )
 
 if __name__ == "__main__":
-
     chat.users.create_user("moakdoge", "1234")
     uvicorn.run(
         app=app,

@@ -5,3 +5,4 @@ config/channels/
 config/app.lock
 config/users.json
 .vscode
+config/attachments
