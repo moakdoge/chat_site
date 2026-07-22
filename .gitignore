@@ -3,3 +3,4 @@ __pycache__/
 tmp/
 config/channels/
 config/app.lock
+config/users.json
