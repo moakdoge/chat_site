@@ -51,9 +51,9 @@ class Config:
         fi = (self._folder / file)
         fi.parent.mkdir(exist_ok=True, parents=True)
 
-        print("SAVING")
         #making it atomic
         tempfile = self.make_temp_file(fi)
+        self._parent.console.debug("Saving", fi.relative_to(self._folder), "atomically with", tempfile.relative_to(self._folder))
         with open(tempfile, "w") as f:
             contents = json.dumps(data, indent=2 if self.debug else 0)
             f.write(contents)
@@ -61,6 +61,7 @@ class Config:
             os.fsync(f.fileno())
 
         os.replace(tempfile, fi)
+        self._parent.console.debug(f"Successfully saved file {fi.relative_to(self._folder)}")
 
     def _load_contents(self, data: bytes) -> dict:
         '''Loads contents'''
@@ -76,11 +77,11 @@ class Config:
         fixed_file = (self._folder / file).resolve()
         tmp_file = self.make_temp_file(fixed_file)
 
-
+        self._parent.console.debug(f"Loading file {fixed_file.relative_to(self._folder)}")
 
         if not (self._folder / file).exists():
             if tmp_file.exists():
-                print(f"[WARNING]: loading off {tmp_file}")
+                self._parent.console.warn(f"Loading off {tmp_file} for file {fixed_file.relative_to(self._folder)}")
                 contents = tmp_file.read_bytes()
                 os.replace(tmp_file, fixed_file)
                 return self._load_contents(contents)

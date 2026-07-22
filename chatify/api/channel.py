@@ -43,7 +43,7 @@ class ChannelSubsystem:
 
     async def _on_exit(self):
         for id, chl in self.CACHE.copy().items():
-            print(f"Unloading: {chl} ({id})")
+            self.parent.console.debug(f"Unloading: {chl} ({id})")
             await self._unload(chl)
 
     def load_all(self):
@@ -99,7 +99,7 @@ class ChannelSubsystem:
 
 
     async def load(self, channelID: ChannelID) -> Channel:
-        print("LOADING", channelID)
+        self.parent.console.debug(f"Loading channel #{channelID}")
         metadata, messages = self._get_save_files(channelID)
         config = self.parent.config
         metadata_contents = config.load_custom(metadata)
@@ -107,15 +107,15 @@ class ChannelSubsystem:
         tmpjournal = metadata.parent / ".tmpjournal"
 
         if tmpjournal.exists():
-            print(f"[WARNING]: .tmpjournal is found; loading off it")
+            self.parent.console.warn(f".tmpjournal is found; loading off it")
             _messages = []
             with open(tmpjournal, "r") as f:
                 _lines = f.read().splitlines()
-                for line in _lines:
+                for i, line in enumerate(_lines):
                     try:
                         _messages.append(json.loads(line))
                     except json.JSONDecodeError:
-                        print("[ERROR]: Failed to load message")
+                        self.parent.console.error("Failed to load message",i,"(corrupted)")
             message_contents.extend(_messages) # type: ignore
             os.remove(tmpjournal)
         
@@ -140,7 +140,7 @@ class ChannelSubsystem:
         return self.CACHE[data["id"]] 
 
     async def _unload(self, channel: Channel):
-        print("UNLOADING", channel.id)
+        self.parent.console.debug(f"Unloading channel #{channel.id}")
         await self.save(channel)
         del self.CACHE[channel.id]
         #Make sure to delete the journaling file if any

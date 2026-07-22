@@ -44,6 +44,11 @@ class MessageLib:
         if timestamp is None:
             timestamp = time.time_ns() // 1_000
 
+        user = self.parent.users.get_user(id=author)
+        if user is None:
+            self.parent.console.error(f"User ID of {author} was not found! Failed to send message")
+            return
+    
         messageOBJ = Message(
             content=content,
             author=author,
@@ -51,7 +56,7 @@ class MessageLib:
             timestamp=timestamp,
             attachments=()
         )
-
+        self.parent.console.debug(f"Message send in #{channel} (@",user.username,")", seperator="") # type: ignore
         await self.parent.channels.register_message(channel, messageOBJ)
         return messageOBJ
         

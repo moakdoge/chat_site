@@ -13,7 +13,7 @@ from chatify.types.json_types.sending import SendRequest
 from chatify.types.json_types.user import UserObject
 from chatify.types.user import Token, User
 
-chat = ChatApp(Path(__file__).parent / "config")
+chat = ChatApp(Path(__file__).parent / "config", debug=True)
 app = FastAPI(
     title="chatify",
     description="Some chat app idk lmao",

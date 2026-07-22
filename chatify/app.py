@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 from fastapi import FastAPI
 import chatify.api.channel
@@ -10,23 +10,41 @@ import chatify.api.files
 import chatify.api.config
 import chatify.api.users
 import chatify.api.security
+import chatify.api.logger
 import atexit, time
 from contextlib import asynccontextmanager
 
 from chatify.types.internal import AsyncTask
 class ChatApp:
-    def __init__(self, base: Path) -> None:
+    def __init__(self, base: Path, *, debug: bool = False) -> None:
         self._on_shutdown: list[Callable] = []
         self._registered_tasks: list[AsyncTask] = []
+        self._track_setattrs = True
+        self._mods_loaded = 0
+        
+        _start = time.time_ns()
 
+        self.console = chatify.api.logger.Logger(self)
         self.security = chatify.api.security.SecurityLib(self)
         self.config = chatify.api.config.Config(base, self) # type: ignore
+        self.config.debug = debug
         self.channels = chatify.api.channel.ChannelSubsystem(self)
         self.messages = chatify.api.messages.MessageLib(self)
         self.files = chatify.api.files.FileManager(self)
         self.users = chatify.api.users.UserManager(self)
 
+        _end = time.time_ns()
+        _duration = (_end - _start) / 1_000_000
 
+        self.console.success(f"Loaded {self._mods_loaded} modules in {_duration:.2f}ms")
+    
+    def __setattr__(self, name: str, value: Any):
+        object.__setattr__(self, name, value)
+        if name.startswith("_"):
+            return
+        if hasattr(self, "console") and self._track_setattrs:
+            self.console.info(f"Loaded: {value.__module__}")
+            self._mods_loaded += 1
 
 
     def on_exit(self, fn: Callable):

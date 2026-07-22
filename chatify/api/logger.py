@@ -1,0 +1,82 @@
+import sys, re
+from typing import TYPE_CHECKING, Any
+from datetime import datetime
+import traceback
+class Colors:
+    RESET = "\033[0m"
+    RED = "\033[31m"
+    YELLOW = "\033[33m"
+    GREEN = "\033[32m"
+    BLUE = "\033[34m"
+    CYAN = "\033[36m"
+    GRAY = "\033[90m"
+
+
+if TYPE_CHECKING:
+    from chatify.app import ChatApp
+class Logger:
+    def __init__(self, parent: "ChatApp") -> None:
+        self.stdout = sys.stdout
+        self.stderr = sys.stderr
+        self.parent = parent
+
+    def _process_args(self, args: tuple[Any, ...], join: str = " ") -> str:
+        msg: list[str] = []
+        for obj in args:
+            try:
+                value = str(obj)
+                msg.append(value)
+            except Exception:
+                pass
+        return join.join(msg)
+    
+    def _timestamp(self) -> str:
+        '''Generates a timestamp'''
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def _exception(self, exp: type[BaseException]) -> str:
+        '''Generates a print statement for an exception'''
+        return "".join(traceback.format_exception(exp))
+
+    def error(self, *args: Any, seperator: str = " ", attach_exception: bool = False):
+        contents = self._process_args(args, join=seperator)
+        message = f"{Colors.RED}ERROR: {Colors.RESET}{contents}{self.newline}"
+
+        if attach_exception:
+            exc_type, exc_value, tb = sys.exc_info()
+            if exc_type:
+                message += self._exception(exc_type)
+        self.stderr.write(message)
+        self.stderr.flush()
+
+    def warn(self, *args: Any, seperator: str = " "):
+        contents = self._process_args(args, join=seperator)
+        message = f"{Colors.YELLOW}WARNING: {Colors.RESET}{contents}{self.newline}"
+        self.stderr.write(message)
+        self.stderr.flush()
+
+    def info(self, *args: Any, seperator: str = " "):
+        contents = self._process_args(args, join=seperator)
+        message = f"{Colors.GRAY}LOG: {Colors.RESET}{contents}{self.newline}"
+        self.stdout.write(message)
+        self.stdout.flush()
+
+    def success(self, *args: Any, seperator: str = " "):
+        contents = self._process_args(args, join=seperator)
+        message = f"{Colors.GREEN}SUCCESS: {Colors.RESET}{contents}{self.newline}"
+        self.stdout.write(message)
+        self.stdout.flush()
+
+    def debug(self, *args: Any, seperator: str = " "):
+        if getattr(self.parent, "config", False):
+            if self.parent.config.debug is False:
+                return
+        
+        contents = self._process_args(args, join=seperator)
+        message = f"{Colors.GRAY}DEBUG: {Colors.RESET}{contents}{self.newline}"
+        self.stdout.write(message)
+        self.stdout.flush()
+    
+    @property
+    def newline(self):
+        return "\n"

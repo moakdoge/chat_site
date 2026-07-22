@@ -18,25 +18,25 @@ class UserManager:
         self.parent.on_exit(self._on_exit)
         self.parent.schedule_task(self._asession_purge, repeat_interval=1)
 
+
+    @lru_cache(maxsize=256)
     def get_user(self, *, id: UserID | None = None, username: str | None = None) -> User | None:
         '''Gets a user by a user ID or username'''
 
         if id is not None:
             user = self.users.get(id, None)
-
             if user is None:
                return None
                # raise Exception("I have no idea how the fuck to handle this")
-            
             return user
 
 
         if username is not None:
-            found = [usr for usr in self.users.values() if usr.username == username]
-
-            if len(found) == 0:
-                return None
-            return found[0]
+            user = next(
+                (usr for usr in self.users.values() if usr.username == username),
+                None
+            )
+            return user
         raise Exception("please provide id or username")
     
     @property
